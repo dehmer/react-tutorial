@@ -1,84 +1,25 @@
 import React from 'react'
 import Square from './Square'
 
-const calculateWinner = squares => {
-  const lines = [
-    [0, 1, 2], [3, 4, 5], [6, 7, 8],
-    [0, 3, 6], [1, 4, 7], [2, 5, 8],
-    [0, 4, 8], [2, 4, 6],
-  ]
+const cons = (xs, fn) => xs.reduce((acc, x) => acc.concat(fn(x)), [])
 
-  for (let i = 0; i < lines.length; i++) {
-    const [a, b, c] = lines[i]
-    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a]
-    }
-  }
+const square = props => i =>
+  <Square
+    value={props.squares[i]}
+    onClick={() => props.onClick(i)}
+  />
 
-  return null
-}
+const row = props => y => cons([0, 1, 2], x =>
+    square(props)(x + y))
 
-class Board extends React.Component {
+const grid = props => cons([0, 3, 6], y =>
+  <div className="board-row">
+    { row(props)(y) }
+  </div>)
 
-  constructor(props) {
-    super(props)
-    this.state = {
-      squares: Array(9).fill(null),
-      next: 'X'
-    }
-  }
-
-  handleClick(i) {
-    if(this.state.squares[i]) return
-    if(calculateWinner(this.state.squares)) return
-
-    const squares = this.state.squares.slice()
-    squares[i] = this.state.next
-
-    this.setState({
-      squares,
-      next: this.state.next === 'X' ? 'O' : 'X'
-    })
-  }
-
-  renderSquare(i) {
-    return (
-      <Square
-        // passed as `props` to constructor
-        value={this.state.squares[i]}
-        onClick={() => this.handleClick(i)}
-      />
-    )
-  }
-
-  render() {
-    const winner = calculateWinner(this.state.squares)
-    const status = winner ?
-      `Winner: ${winner} ` :
-      `Next player: ${this.state.next}`
-
-
-    return (
-      <div>
-        <div className="status">{status}</div>
-        <div className="board-row">
-          {this.renderSquare(0)}
-          {this.renderSquare(1)}
-          {this.renderSquare(2)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(3)}
-          {this.renderSquare(4)}
-          {this.renderSquare(5)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(6)}
-          {this.renderSquare(7)}
-          {this.renderSquare(8)}
-        </div>
-      </div>
-    );
-  }
-}
+const Board = props =>
+  <div>
+    { grid(props) }
+  </div>
 
 export default Board
